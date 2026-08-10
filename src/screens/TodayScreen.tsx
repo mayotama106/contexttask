@@ -32,12 +32,12 @@ export function TodayScreen({ now, onOpen }: { now: number; onOpen: (task: Task)
       },
       {
         key: "important",
-        label: "重要 · 日付なし",
+        label: "重要",
         tone: "normal" as const,
-        // Only undated ones. Capture flags every `!due` task as important
-        // (handoff rule), so including dated tasks here would drag the whole
-        // future onto a screen that is supposed to be about today.
-        items: open.filter((t) => t.important && t.dueAt == null),
+        // Importance is now its own `!!` marker rather than a side effect of
+        // having a date, so it is worth surfacing here on its own. Dated ones
+        // are already listed above (or belong to 予定), hence the exclusion.
+        items: open.filter((t) => t.important && (t.dueAt == null || t.dueAt > today)),
       },
     ].filter((g) => g.items.length > 0);
   }, [tasks, now]);

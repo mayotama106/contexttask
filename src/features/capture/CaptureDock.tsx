@@ -4,7 +4,8 @@ import { Badge, Button, Input, Tag } from "../../components/ds";
 import { hasTokens, insertToken, parseCapture } from "../../lib/parse";
 import "./capture-dock.css";
 
-const QUICK_TOKENS = ["#work", "#life", "~30m", "!今日", "!明日"] as const;
+// `!!` earns a chip: it is the one marker that is awkward to type on a phone.
+const QUICK_TOKENS = ["#work", "#life", "~30m", "!今日", "!明日", "!!"] as const;
 
 /**
  * Fixed bottom capture surface. The only rule that matters here: submitting
@@ -36,6 +37,7 @@ export function CaptureDock({ onSubmit }: { onSubmit: (raw: string) => void }) {
           {parsed.tag && <Tag active>{parsed.tag}</Tag>}
           {parsed.est && <Badge tone="brand">~{parsed.est}</Badge>}
           {parsed.due && <Badge tone="accent">{parsed.due}</Badge>}
+          {parsed.important && <Badge tone="accent">重要</Badge>}
         </div>
       )}
 

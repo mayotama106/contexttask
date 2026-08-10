@@ -180,7 +180,7 @@ export function DesktopDashboard() {
 
         <div className="desk__capture">
           <Input
-            placeholder="タスクを入力… (#tag ~見積もり !期限)"
+            placeholder="タスクを入力… (#tag ~見積もり !期限 !!重要)"
             value={value}
             lit={Boolean(value)}
             onChange={(e) => setValue(e.target.value)}
@@ -196,12 +196,13 @@ export function DesktopDashboard() {
           </Button>
         </div>
 
-        {(parsed.tag || parsed.est || parsed.due) && (
+        {(parsed.tag || parsed.est || parsed.due || parsed.important) && (
           <div className="desk__parsed">
             <span className="desk__parsed-label">PARSED</span>
             {parsed.tag && <Tag active>{parsed.tag}</Tag>}
             {parsed.est && <Badge tone="brand">~{parsed.est}</Badge>}
             {parsed.due && <Badge tone="accent">{parsed.due}</Badge>}
+            {parsed.important && <Badge tone="accent">重要</Badge>}
           </div>
         )}
 

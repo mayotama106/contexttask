@@ -43,4 +43,6 @@ export interface ParsedCapture {
   tag?: string;
   est?: string;
   due?: string;
+  /** Set by the `!!` marker, independent of whether a due date was given. */
+  important: boolean;
 }

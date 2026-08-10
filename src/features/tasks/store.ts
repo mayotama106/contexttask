@@ -111,7 +111,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       due: p.due,
       dueAt: resolveDue(p.due, now),
       done: false,
-      important: Boolean(p.due),
+      important: p.important,
       createdAt: now,
       updatedAt: now,
       tagSource: p.tag ? "user" : "parse",
