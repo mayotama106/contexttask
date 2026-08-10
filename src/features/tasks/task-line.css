@@ -43,3 +43,13 @@
 .task-line--compact .task-line__meta {
   gap: var(--space-2);
 }
+
+.task-line__due {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.task-line__due--over {
+  color: var(--red-300);
+}

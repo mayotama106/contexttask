@@ -1,4 +1,5 @@
 import { Badge, Checkbox, Tag } from "../../components/ds";
+import { dueLabel, isOverdue } from "../../lib/due";
 import type { Task } from "../../lib/types";
 import "./task-line.css";
 
@@ -21,6 +22,8 @@ export function TaskLine({
   // Ice is reserved for focus/active/AI-processing: an unresolved tag glows
   // until the background inference lands, with no spinner anywhere.
   const inferring = task.aiStatus === "pending" || task.aiStatus === "processing";
+  const due = task.done ? null : dueLabel(task.dueAt);
+  const overdue = !task.done && isOverdue(task.dueAt);
 
   return (
     <div className={compact ? "task-line task-line--compact" : "task-line"}>
@@ -46,6 +49,11 @@ export function TaskLine({
         <div className="task-line__meta">
           <Tag active={inferring}>{task.tag}</Tag>
           <Badge tone="neutral">~{task.est}</Badge>
+          {due && (
+            <span className={overdue ? "task-line__due task-line__due--over" : "task-line__due"}>
+              {due}
+            </span>
+          )}
         </div>
       </button>
       {task.important && !task.done && <Badge tone="accent">重要</Badge>}

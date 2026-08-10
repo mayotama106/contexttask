@@ -58,3 +58,12 @@
   font-weight: var(--weight-semibold);
   cursor: pointer;
 }
+
+.task-editor__resolved {
+  margin-top: -8px;
+}
+.task-editor__unresolved {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}

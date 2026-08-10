@@ -8,7 +8,10 @@ export interface Task {
   raw: string;
   tag: string;
   est: string;
+  /** The token the user typed, e.g. "明日" or "8/14". Kept verbatim. */
   due?: string;
+  /** `due` resolved to a start-of-day timestamp, or null if unparseable. */
+  dueAt?: number | null;
   done: boolean;
   important: boolean;
   createdAt: number;

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { db, loadTasks, writeThrough } from "../../lib/db";
 import { parseCapture } from "../../lib/parse";
+import { resolveDue } from "../../lib/due";
 import type { AiJob, Task } from "../../lib/types";
 import { HeuristicTagger, isAbort, type Tagger } from "../capture/aiTagger";
 import { logActivity } from "../activity/store";
@@ -42,6 +43,7 @@ export interface EditableFields {
   title: string;
   tag: string;
   est: string;
+  due: string;
   important: boolean;
 }
 
@@ -107,6 +109,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       tag: p.tag ?? "inbox",
       est: p.est ?? "—",
       due: p.due,
+      dueAt: resolveDue(p.due, now),
       done: false,
       important: Boolean(p.due),
       createdAt: now,
@@ -169,6 +172,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     if (!title) return;
     const tag = patch.tag.trim().replace(/^#/, "") || "inbox";
     const est = patch.est.trim().replace(/^~/, "") || "—";
+    const due = patch.due.trim().replace(/^!/, "");
+    const now = Date.now();
 
     const tasks = get().tasks.map((t) =>
       t.id === id
@@ -177,11 +182,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             title,
             tag,
             est,
+            due: due || undefined,
+            dueAt: resolveDue(due, now),
             important: patch.important,
             // An explicit edit outranks inference — stop the AI from reverting it.
             tagSource: "user" as const,
             aiStatus: "done" as const,
-            updatedAt: Date.now(),
+            updatedAt: now,
           }
         : t,
     );

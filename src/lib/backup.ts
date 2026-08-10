@@ -1,4 +1,5 @@
 import type { AiStatus, Task } from "./types";
+import { resolveDue } from "./due";
 
 /**
  * Export/import for the local task database. This is the only escape hatch the
@@ -107,6 +108,11 @@ export function parseBackup(text: string): Task[] {
       tag: str(t.tag, "inbox") || "inbox",
       est: str(t.est, "—") || "—",
       due: typeof t.due === "string" && t.due ? t.due : undefined,
+      // Older backups predate dueAt; recover it from the token they do carry.
+      dueAt:
+        typeof t.dueAt === "number"
+          ? t.dueAt
+          : resolveDue(typeof t.due === "string" ? t.due : undefined, createdAt),
       done: bool(t.done),
       important: bool(t.important),
       createdAt,

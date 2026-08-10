@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Badge, Button, Field, Input, Sheet } from "../../components/ds";
 import { VOCABULARY } from "../capture/aiTagger";
+import { dueLabel, resolveDue } from "../../lib/due";
 import type { Task } from "../../lib/types";
 import type { EditableFields } from "./store";
 import "./task-editor.css";
@@ -24,12 +25,13 @@ export function TaskEditor({
   const [title, setTitle] = useState(task.title);
   const [tag, setTag] = useState(task.tag);
   const [est, setEst] = useState(task.est === "—" ? "" : task.est);
+  const [due, setDue] = useState(task.due ?? "");
   const [important, setImportant] = useState(task.important);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const save = () => {
     if (!title.trim()) return;
-    onSave(task.id, { title, tag, est, important });
+    onSave(task.id, { title, tag, est, due, important });
     onClose();
   };
 
@@ -78,6 +80,27 @@ export function TaskEditor({
           style={{ height: 46 }}
         />
       </Field>
+
+      <Field label="Due">
+        <Input
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+          placeholder="明日 / 金曜 / 8/14"
+          aria-label="期限"
+          autoCapitalize="off"
+          autoCorrect="off"
+          style={{ height: 46 }}
+        />
+      </Field>
+      {due.trim() && (
+        <div className="task-editor__resolved">
+          {resolveDue(due) === null ? (
+            <span className="task-editor__unresolved">日付として解釈できません</span>
+          ) : (
+            <Badge tone="ice">{dueLabel(resolveDue(due))}</Badge>
+          )}
+        </div>
+      )}
 
       <button
         type="button"

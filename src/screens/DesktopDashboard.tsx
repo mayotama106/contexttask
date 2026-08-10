@@ -17,6 +17,11 @@ import { useActivityStore } from "../features/activity/store";
 import { syncDotColor, syncLabel, useSyncStore } from "../features/sync/obsidianSync";
 import { parseCapture } from "../lib/parse";
 import type { Task } from "../lib/types";
+import { startOfDay } from "../lib/due";
+import { SettingsScreen } from "./SettingsScreen";
+import { TodayScreen } from "./TodayScreen";
+import { TagsScreen } from "./TagsScreen";
+import { UpcomingScreen } from "./UpcomingScreen";
 import { useClock } from "../lib/useClock";
 import "./desktop.css";
 
@@ -81,6 +86,15 @@ export function DesktopDashboard() {
       .sort((a, b) => b.n - a.n);
   }, [tasks]);
 
+  // 今日 / 今週 / 今月 bound the focus list by due date. Tasks with no date
+  // always show — an undated task is not "outside" any range.
+  const inRange = useMemo(() => {
+    const today = startOfDay(now);
+    const span = range === "today" ? 1 : range === "week" ? 7 : 31;
+    const until = today + span * 86_400_000;
+    return tasks.filter((t) => t.dueAt == null || t.dueAt < until);
+  }, [tasks, range, now]);
+
   const parsed = parseCapture(value);
 
   const submit = () => {
@@ -123,6 +137,20 @@ export function DesktopDashboard() {
       </aside>
 
       <main className="desk__main">
+        {nav !== "dashboard" && (
+          <div className="desk__subpage">
+            {nav === "settings" ? (
+              <SettingsScreen />
+            ) : nav === "tags" ? (
+              <TagsScreen onOpen={setEditing} />
+            ) : nav === "upcoming" ? (
+              <UpcomingScreen now={now} onOpen={setEditing} />
+            ) : (
+              <TodayScreen now={now} onOpen={setEditing} />
+            )}
+          </div>
+        )}
+        {nav === "dashboard" && (<>
         {/* Two sparse cross marks in genuinely empty canvas — never over a card. */}
         <span className="motif-cross" style={{ left: "47%", top: 52, color: "var(--ice-500)", opacity: 0.4 }}>
           ✕
@@ -192,9 +220,13 @@ export function DesktopDashboard() {
             action={<IconButton icon={<Plus size={16} />} variant="solid" label="タスクを追加" />}
           >
             <div>
-              {tasks.map((t) => (
-                <TaskLine key={t.id} task={t} onToggle={toggle} onOpen={setEditing} compact />
-              ))}
+              {inRange.length === 0 ? (
+                <div className="desk__muted">この期間に対象のタスクはありません</div>
+              ) : (
+                inRange.map((t) => (
+                  <TaskLine key={t.id} task={t} onToggle={toggle} onOpen={setEditing} compact />
+                ))
+              )}
             </div>
           </Panel>
 
@@ -268,6 +300,7 @@ export function DesktopDashboard() {
             </Panel>
           </div>
         </div>
+        </>)}
       </main>
 
       {editing && (

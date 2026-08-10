@@ -253,3 +253,9 @@
   font-size: var(--text-sm);
   line-height: 1.45;
 }
+
+/* Nav-rail subpages reuse the mobile screens at a readable measure. */
+.desk__subpage {
+  max-width: 720px;
+  width: 100%;
+}

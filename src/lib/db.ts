@@ -1,5 +1,6 @@
 import Dexie, { type Table } from "dexie";
 import type { AiJob, Task } from "./types";
+import { resolveDue } from "./due";
 
 /**
  * Local-first store. Every capture lands here synchronously from the UI's point
@@ -18,6 +19,24 @@ class ContextTaskDB extends Dexie {
       aiJobs: "id, taskId, createdAt",
       meta: "key",
     });
+
+    // v2 adds the resolved due date. Existing rows only carry the raw token, so
+    // they are re-resolved here — relative words like "明日" are interpreted
+    // against the task's own creation time, not today.
+    this.version(2)
+      .stores({
+        tasks: "id, createdAt, done, tag, aiStatus, dueAt",
+        aiJobs: "id, taskId, createdAt",
+        meta: "key",
+      })
+      .upgrade((tx) =>
+        tx
+          .table<Task>("tasks")
+          .toCollection()
+          .modify((task) => {
+            task.dueAt = resolveDue(task.due, task.createdAt);
+          }),
+      );
   }
 }
 

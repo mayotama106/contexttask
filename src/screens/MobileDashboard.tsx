@@ -6,6 +6,8 @@ import { TaskLine } from "../features/tasks/TaskLine";
 import { TaskEditor } from "../features/tasks/TaskEditor";
 import { useTaskStore } from "../features/tasks/store";
 import { SettingsScreen } from "./SettingsScreen";
+import { TodayScreen } from "./TodayScreen";
+import { TagsScreen } from "./TagsScreen";
 import type { Task } from "../lib/types";
 import { syncDotColor, syncLabel, useSyncStore } from "../features/sync/obsidianSync";
 import { useClock } from "../lib/useClock";
@@ -74,11 +76,10 @@ export function MobileDashboard() {
       <div className="mobile__content">
         {navTab === "settings" ? (
           <SettingsScreen />
-        ) : navTab === "today" || navTab === "tags" ? (
-          <div className="mobile__placeholder">
-            <h1 className="mobile__hero">{navTab === "today" ? "TODAY" : "TAGS"}</h1>
-            <p>この画面はまだ作っていません。キャプチャは下のバーからいつでもできます。</p>
-          </div>
+        ) : navTab === "today" ? (
+          <TodayScreen now={now} onOpen={setEditing} />
+        ) : navTab === "tags" ? (
+          <TagsScreen onOpen={setEditing} />
         ) : (
           <>
             <div>

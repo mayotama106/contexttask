@@ -1,0 +1,101 @@
+/* Shared chrome for the 今日 / タグ screens. */
+.list-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.list-screen__hero {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 44px;
+  line-height: 0.9;
+  letter-spacing: var(--tracking-hero);
+  color: var(--gold-500);
+}
+.list-screen__subline {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  margin-top: -10px;
+}
+
+.list-screen__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.list-screen__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.list-screen__label--danger {
+  color: var(--red-300);
+}
+
+.list-screen__empty {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.8;
+  text-align: center;
+}
+.list-screen__empty code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--mist-400);
+  background: var(--ink-700);
+  border: 1px solid var(--border-mist);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+}
+
+/* ---------- tag index ---------- */
+.tags__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.tags__row {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 6px 0;
+  min-height: 44px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tags__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.tags__count {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+.tags__track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ink-600);
+  overflow: hidden;
+}
+.tags__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--indigo-400);
+  transition: width var(--duration-normal) var(--ease-out);
+}
+.tags__row--active .tags__fill {
+  background: var(--ice-400);
+  box-shadow: var(--glow-ice);
+}
