@@ -4,6 +4,7 @@ import { parseCapture } from "../../lib/parse";
 import type { AiJob, Task } from "../../lib/types";
 import { HeuristicTagger, isAbort, type Tagger } from "../capture/aiTagger";
 import { logActivity } from "../activity/store";
+import { mergeTasks, type MergeResult } from "../../lib/backup";
 
 const SEED: Array<Omit<Task, "createdAt" | "updatedAt">> = [
   { id: "s1", title: "週次レビューの資料を作る", raw: "週次レビューの資料を作る #work ~30m !今日", tag: "work", est: "30m", done: false, important: true, tagSource: "ai", aiStatus: "done" },
@@ -27,6 +28,21 @@ interface TaskState {
   undo: (id: string) => void;
   applyInference: (id: string, patch: Partial<Task>) => void;
   setAiEnabled: (enabled: boolean) => void;
+  /** User-driven edit of title/tag/estimate. Pins the tag so AI won't override. */
+  editTask: (id: string, patch: EditableFields) => void;
+  /** Permanent delete, unlike `undo` which only pops the just-captured task. */
+  removeTask: (id: string) => void;
+  /** Non-destructive restore from a backup file. */
+  importTasks: (incoming: Task[]) => MergeResult;
+  /** Wipes every task and suppresses the demo seed from coming back. */
+  clearAll: () => void;
+}
+
+export interface EditableFields {
+  title: string;
+  tag: string;
+  est: string;
+  important: boolean;
 }
 
 let tagger: Tagger = new HeuristicTagger();
@@ -148,10 +164,77 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     emit(tasks);
   },
 
+  editTask: (id, patch) => {
+    const title = patch.title.trim();
+    if (!title) return;
+    const tag = patch.tag.trim().replace(/^#/, "") || "inbox";
+    const est = patch.est.trim().replace(/^~/, "") || "—";
+
+    const tasks = get().tasks.map((t) =>
+      t.id === id
+        ? {
+            ...t,
+            title,
+            tag,
+            est,
+            important: patch.important,
+            // An explicit edit outranks inference — stop the AI from reverting it.
+            tagSource: "user" as const,
+            aiStatus: "done" as const,
+            updatedAt: Date.now(),
+          }
+        : t,
+    );
+    set({ tasks });
+    const next = tasks.find((t) => t.id === id);
+    if (next) writeThrough(() => db.tasks.put(next));
+    // Any inference still in flight for this task would clobber the edit.
+    abortJob(`j_${id}`);
+    writeThrough(() => db.aiJobs.delete(`j_${id}`));
+    emit(tasks);
+  },
+
+  removeTask: (id) => {
+    const tasks = get().tasks.filter((t) => t.id !== id);
+    set({ tasks, undoableId: get().undoableId === id ? null : get().undoableId });
+    abortJob(`j_${id}`);
+    writeThrough(async () => {
+      await db.tasks.delete(id);
+      await db.aiJobs.delete(`j_${id}`);
+    });
+    emit(tasks);
+  },
+
+  importTasks: (incoming) => {
+    const result = mergeTasks(get().tasks, incoming);
+    set({ tasks: result.merged, undoableId: null });
+    writeThrough(async () => {
+      await db.tasks.bulkPut(result.merged);
+      // Imported tasks stand on their own; do not re-run inference over them.
+      await db.meta.put({ key: "seeded", value: true });
+    });
+    logActivity(`バックアップから ${result.added} 件を復元`, "success");
+    emit(result.merged);
+    return result;
+  },
+
+  clearAll: () => {
+    for (const id of inflight.keys()) abortJob(id);
+    set({ tasks: [], undoableId: null });
+    writeThrough(async () => {
+      await db.tasks.clear();
+      await db.aiJobs.clear();
+      // Without this the demo seed would reappear on the next launch.
+      await db.meta.put({ key: "seeded", value: true });
+    });
+    logActivity("すべてのタスクを削除", "danger");
+    emit([]);
+  },
+
   setAiEnabled: (enabled) => {
     set({ aiEnabled: enabled });
     if (!enabled) {
-      for (const controller of inflight.values()) controller.abort();
+      for (const id of [...inflight.keys()]) abortJob(id);
       logActivity("バックグラウンド解析を停止", "neutral");
       return;
     }
@@ -164,6 +247,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
 const MAX_ATTEMPTS = 3;
 const inflight = new Map<string, AbortController>();
+
+/** Cancels an in-flight inference so it cannot overwrite a user's own change. */
+function abortJob(jobId: string): void {
+  inflight.get(jobId)?.abort();
+  inflight.delete(jobId);
+}
 
 async function runJob(
   job: AiJob,

@@ -9,10 +9,13 @@ import "./task-line.css";
 export function TaskLine({
   task,
   onToggle,
+  onOpen,
   compact,
 }: {
   task: Task;
   onToggle: (id: string) => void;
+  /** Opens the editor. The checkbox keeps its own hit area. */
+  onOpen?: (task: Task) => void;
   compact?: boolean;
 }) {
   // Ice is reserved for focus/active/AI-processing: an unresolved tag glows
@@ -26,7 +29,14 @@ export function TaskLine({
         onChange={() => onToggle(task.id)}
         label={`${task.title} を${task.done ? "未完了" : "完了"}にする`}
       />
-      <div className="task-line__body" style={{ opacity: task.done ? 0.45 : 1 }}>
+      <button
+        type="button"
+        className="task-line__body"
+        style={{ opacity: task.done ? 0.45 : 1 }}
+        onClick={onOpen ? () => onOpen(task) : undefined}
+        disabled={!onOpen}
+        aria-label={onOpen ? `${task.title} を編集` : undefined}
+      >
         <div
           className="task-line__title"
           style={{ textDecoration: task.done ? "line-through" : "none" }}
@@ -37,7 +47,7 @@ export function TaskLine({
           <Tag active={inferring}>{task.tag}</Tag>
           <Badge tone="neutral">~{task.est}</Badge>
         </div>
-      </div>
+      </button>
       {task.important && !task.done && <Badge tone="accent">重要</Badge>}
     </div>
   );

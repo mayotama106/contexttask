@@ -16,6 +16,17 @@
 .task-line__body {
   flex: 1;
   min-width: 0;
+  /* Rendered as a button so the whole row opens the editor. */
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.task-line__body:disabled {
+  cursor: default;
 }
 .task-line__title {
   color: var(--text-primary);

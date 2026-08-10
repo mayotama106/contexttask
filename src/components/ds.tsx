@@ -1,11 +1,12 @@
 import {
   forwardRef,
+  useEffect,
   type ButtonHTMLAttributes,
   type CSSProperties,
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import "./ds.css";
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(" ");
@@ -173,6 +174,63 @@ export function Toast({
       <span className="ds-toast__dot" />
       {children}
     </div>
+  );
+}
+
+/* ---------- Sheet ---------- */
+export function Sheet({
+  title,
+  onClose,
+  children,
+  action,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    // The sheet owns the screen; the list behind it must not scroll.
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="ds-sheet-backdrop"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="ds-sheet" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="ds-sheet__head">
+          <div className="ds-sheet__title">{title}</div>
+          {action ?? (
+            <IconButton icon={<X size={16} />} variant="ghost" label="閉じる" onClick={onClose} />
+          )}
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Labelled form row used inside sheets. */
+export function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="ds-field">
+      <span className="ds-field__label">{label}</span>
+      {children}
+    </label>
   );
 }
 

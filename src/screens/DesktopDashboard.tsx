@@ -11,10 +11,12 @@ import {
 } from "lucide-react";
 import { Badge, Button, Card, IconButton, Input, Switch, Tabs, Tag, Toast } from "../components/ds";
 import { TaskLine } from "../features/tasks/TaskLine";
+import { TaskEditor } from "../features/tasks/TaskEditor";
 import { useTaskStore } from "../features/tasks/store";
 import { useActivityStore } from "../features/activity/store";
 import { syncDotColor, syncLabel, useSyncStore } from "../features/sync/obsidianSync";
 import { parseCapture } from "../lib/parse";
+import type { Task } from "../lib/types";
 import { useClock } from "../lib/useClock";
 import "./desktop.css";
 
@@ -47,6 +49,8 @@ export function DesktopDashboard() {
   const tasks = useTaskStore((s) => s.tasks);
   const capture = useTaskStore((s) => s.capture);
   const toggle = useTaskStore((s) => s.toggle);
+  const editTask = useTaskStore((s) => s.editTask);
+  const removeTask = useTaskStore((s) => s.removeTask);
   const activity = useActivityStore((s) => s.entries);
   const aiEnabled = useTaskStore((s) => s.aiEnabled);
   const setAiEnabled = useTaskStore((s) => s.setAiEnabled);
@@ -56,6 +60,7 @@ export function DesktopDashboard() {
   const [range, setRange] = useState<(typeof RANGES)[number]["value"]>("today");
   const [value, setValue] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Task | null>(null);
 
   const open = useMemo(() => tasks.filter((t) => !t.done), [tasks]);
   const completion = tasks.length
@@ -188,7 +193,7 @@ export function DesktopDashboard() {
           >
             <div>
               {tasks.map((t) => (
-                <TaskLine key={t.id} task={t} onToggle={toggle} compact />
+                <TaskLine key={t.id} task={t} onToggle={toggle} onOpen={setEditing} compact />
               ))}
             </div>
           </Panel>
@@ -264,6 +269,15 @@ export function DesktopDashboard() {
           </div>
         </div>
       </main>
+
+      {editing && (
+        <TaskEditor
+          task={tasks.find((t) => t.id === editing.id) ?? editing}
+          onSave={editTask}
+          onDelete={removeTask}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

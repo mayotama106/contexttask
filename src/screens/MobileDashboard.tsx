@@ -3,7 +3,10 @@ import { BookOpen, LayoutDashboard, Settings, Sun, Tag as TagIcon } from "lucide
 import { Card, Tabs, Toast } from "../components/ds";
 import { CaptureDock } from "../features/capture/CaptureDock";
 import { TaskLine } from "../features/tasks/TaskLine";
+import { TaskEditor } from "../features/tasks/TaskEditor";
 import { useTaskStore } from "../features/tasks/store";
+import { SettingsScreen } from "./SettingsScreen";
+import type { Task } from "../lib/types";
 import { syncDotColor, syncLabel, useSyncStore } from "../features/sync/obsidianSync";
 import { useClock } from "../lib/useClock";
 import "./mobile.css";
@@ -30,11 +33,14 @@ export function MobileDashboard() {
   const capture = useTaskStore((s) => s.capture);
   const toggle = useTaskStore((s) => s.toggle);
   const undo = useTaskStore((s) => s.undo);
+  const editTask = useTaskStore((s) => s.editTask);
+  const removeTask = useTaskStore((s) => s.removeTask);
   const sync = useSyncStore();
 
   const [navTab, setNavTab] = useState<(typeof TABS)[number]["id"]>("home");
   const [listTab, setListTab] = useState<ListTab>("focus");
   const [toast, setToast] = useState<{ message: string; undoId: string } | null>(null);
+  const [editing, setEditing] = useState<Task | null>(null);
 
   const open = useMemo(() => tasks.filter((t) => !t.done), [tasks]);
   const startOfDay = new Date(now).setHours(0, 0, 0, 0);
@@ -66,35 +72,51 @@ export function MobileDashboard() {
       <div className="mobile__statusbar" aria-hidden />
 
       <div className="mobile__content">
-        <div>
-          <h1 className="mobile__hero">TODAY</h1>
-          <div className="mobile__subline">
-            {dateLabel} · {open.length} OPEN
+        {navTab === "settings" ? (
+          <SettingsScreen />
+        ) : navTab === "today" || navTab === "tags" ? (
+          <div className="mobile__placeholder">
+            <h1 className="mobile__hero">{navTab === "today" ? "TODAY" : "TAGS"}</h1>
+            <p>この画面はまだ作っていません。キャプチャは下のバーからいつでもできます。</p>
           </div>
-          <div className="mobile__sync">
+        ) : (
+          <>
+            <div>
+              <h1 className="mobile__hero">TODAY</h1>
+              <div className="mobile__subline">
+                {dateLabel} · {open.length} OPEN
+              </div>
+              <div className="mobile__sync">
+                <span
+                  className="mobile__sync-dot"
+                  style={{ background: syncDotColor(sync.state) }}
+                  aria-hidden
+                />
+                <BookOpen size={12} style={{ color: "var(--text-tertiary)" }} />
+                <span className="mobile__sync-label">{syncLabel(sync, now)}</span>
+              </div>
+            </div>
+
+            <Tabs items={LIST_TABS} value={listTab} onChange={setListTab} />
+
+            <Card style={{ padding: "4px 14px 8px" }}>
+              {visible.length === 0 ? (
+                <div className="mobile__empty">下のバーから最初のタスクを入力</div>
+              ) : (
+                visible.map((task) => (
+                  <TaskLine key={task.id} task={task} onToggle={toggle} onOpen={setEditing} />
+                ))
+              )}
+            </Card>
+
             <span
-              className="mobile__sync-dot"
-              style={{ background: syncDotColor(sync.state) }}
-              aria-hidden
-            />
-            <BookOpen size={12} style={{ color: "var(--text-tertiary)" }} />
-            <span className="mobile__sync-label">{syncLabel(sync, now)}</span>
-          </div>
-        </div>
-
-        <Tabs items={LIST_TABS} value={listTab} onChange={setListTab} />
-
-        <Card style={{ padding: "4px 14px 8px" }}>
-          {visible.length === 0 ? (
-            <div className="mobile__empty">下のバーから最初のタスクを入力</div>
-          ) : (
-            visible.map((task) => <TaskLine key={task.id} task={task} onToggle={toggle} />)
-          )}
-        </Card>
-
-        <span className="motif-cross" style={{ right: 26, bottom: 40, color: "var(--gold-500)", opacity: 0.35 }}>
-          ✕
-        </span>
+              className="motif-cross"
+              style={{ right: 26, bottom: 40, color: "var(--gold-500)", opacity: 0.35 }}
+            >
+              ✕
+            </span>
+          </>
+        )}
       </div>
 
       {toast && (
@@ -113,6 +135,16 @@ export function MobileDashboard() {
             </button>
           </Toast>
         </div>
+      )}
+
+      {editing && (
+        <TaskEditor
+          // Re-read from the store so an AI tag landing mid-edit is not stale.
+          task={tasks.find((t) => t.id === editing.id) ?? editing}
+          onSave={editTask}
+          onDelete={removeTask}
+          onClose={() => setEditing(null)}
+        />
       )}
 
       <CaptureDock onSubmit={onCapture} />

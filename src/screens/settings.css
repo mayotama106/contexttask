@@ -1,0 +1,78 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings__hero {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 44px;
+  line-height: 0.9;
+  letter-spacing: var(--tracking-hero);
+  color: var(--gold-500);
+}
+.settings__subline {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  margin-top: -10px;
+}
+
+.settings__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.settings__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.settings__note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+.settings__warn {
+  color: var(--red-300);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+.settings__ok {
+  margin: 0;
+  color: var(--green-300);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.settings__bad {
+  margin: 0;
+  color: var(--red-300);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.settings__row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.settings__danger {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--red-500);
+  border-radius: var(--radius-md);
+  background: rgba(224, 82, 107, 0.12);
+  color: var(--red-300);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}

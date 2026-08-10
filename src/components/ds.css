@@ -313,6 +313,69 @@
   transform: translateX(16px);
 }
 
+/* ---------- Sheet ----------
+   Bottom sheet on phones, centred dialog once there is room. */
+.ds-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(2px);
+}
+.ds-sheet {
+  width: 100%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: var(--space-5) 18px calc(var(--space-5) + env(safe-area-inset-bottom));
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-mist);
+  border-bottom: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-lg), var(--shadow-mist);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+@media (min-width: 640px) {
+  .ds-sheet-backdrop {
+    align-items: center;
+  }
+  .ds-sheet {
+    max-width: 480px;
+    border-bottom: 1px solid var(--border-mist);
+    border-radius: var(--radius-xl);
+    padding-bottom: var(--space-5);
+  }
+}
+.ds-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.ds-sheet__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ds-field__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
 /* ---------- Quick-insert chip ---------- */
 .ds-chip {
   display: inline-flex;
