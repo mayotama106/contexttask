@@ -20,7 +20,25 @@ npm run build      # 型検査 + 本番ビルド
 npm run ios:open   # ビルド → cap sync → Xcode で開く
 ```
 
-## iOS で動かす
+## 配信 (PWA / GitHub Pages)
+
+**https://mayotama106.github.io/contexttask/**
+
+iPhone の Safari で開き、共有 → 「ホーム画面に追加」で全画面起動の PWA になる。
+
+- `main` への push で GitHub Actions が自動デプロイ（[.github/workflows/pages.yml](.github/workflows/pages.yml)）
+- Pages は `/<repo>/` 配下で配信されるため、ワークフローが `VITE_BASE` を渡す。Capacitor は WebView のルートから読むので既定の `/` のまま。**同じコードから両方が出る**
+- Service Worker (vite-plugin-pwa) が全アセットを precache。2 回目以降は機内モードでも起動する
+- トークンのフォントは Google Fonts なので precache が届かない。初回ロード時に CacheFirst で拾い、オフラインでも Deep Mist の書体を保つ
+- アイコンは `npm run icon` で iOS 用 1024px と PWA 用 192/512/180/32px をまとめて生成する
+
+### バックエンドは無い
+
+サーバもデータベースも API 呼び出しも持たない。タスクは閲覧者自身の端末の IndexedDB にのみ保存され、どこにも送信されない。GitHub Pages は静的ファイルを配るだけ。
+
+## iOS ネイティブシェル (Capacitor)
+
+### Xcode でのビルド
 
 `ios/` に Xcode プロジェクトを生成済み（Capacitor 8 は SwiftPM を使うので CocoaPods 不要）。
 
