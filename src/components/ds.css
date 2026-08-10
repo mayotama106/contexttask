@@ -1,0 +1,334 @@
+/* LifeQuest design-system primitives, rebuilt from their usage in the
+   ContextTask handoff prototypes. Every value comes from tokens/*.css. */
+
+/* Expands a small control's touch target to 44px without changing its box. */
+.ds-hit {
+  position: relative;
+}
+.ds-hit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- Card ---------- */
+.ds-card {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-mist);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-mist);
+  box-sizing: border-box;
+}
+
+/* ---------- Button ---------- */
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-normal);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+.ds-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ds-button--accent {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+.ds-button--accent:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.ds-button--accent:active:not(:disabled) {
+  background: var(--accent-active);
+}
+.ds-button--ghost {
+  background: transparent;
+  border-color: var(--border-mist);
+  color: var(--text-primary);
+}
+.ds-button--solid {
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+}
+.ds-button--solid:hover:not(:disabled) {
+  background: var(--brand-primary-hover);
+}
+.ds-button:focus-visible,
+.ds-input:focus-within,
+.ds-checkbox:focus-visible,
+.ds-switch:focus-visible,
+.ds-chip:focus-visible,
+.ds-tab:focus-visible,
+.ds-navitem:focus-visible,
+.ds-tabbar-item:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* ---------- IconButton ---------- */
+.ds-iconbutton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.ds-iconbutton--solid {
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+}
+.ds-iconbutton--solid:hover {
+  background: var(--brand-primary-hover);
+}
+.ds-iconbutton--ghost {
+  background: transparent;
+  border-color: var(--border-mist);
+  color: var(--text-secondary);
+}
+
+/* ---------- Input ---------- */
+.ds-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-mist);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-mist);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+.ds-input--lit {
+  border-color: var(--ice-400);
+  box-shadow: var(--glow-ice);
+}
+.ds-input__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.ds-input input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}
+.ds-input input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* ---------- Checkbox ---------- */
+.ds-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--ink-800);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+.ds-checkbox[aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Tag ---------- */
+.ds-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-mist);
+  background: var(--ink-700);
+  color: var(--mist-400);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ds-tag::before {
+  content: "#";
+  opacity: 0.55;
+}
+.ds-tag--active {
+  border-color: var(--ice-400);
+  color: var(--ice-500);
+  box-shadow: var(--glow-ice);
+}
+
+/* ---------- Badge ---------- */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ds-badge--neutral {
+  background: var(--ink-600);
+  border-color: var(--border-mist);
+  color: var(--text-secondary);
+}
+.ds-badge--brand {
+  background: var(--brand-primary-tint);
+  border-color: var(--indigo-500);
+  color: var(--indigo-200);
+}
+.ds-badge--accent {
+  background: var(--accent-tint);
+  border-color: var(--gold-600);
+  color: var(--gold-400);
+}
+.ds-badge--ice {
+  background: rgba(168, 212, 255, 0.1);
+  border-color: var(--ice-400);
+  color: var(--ice-500);
+}
+
+/* ---------- Tabs ---------- */
+.ds-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--ink-900);
+  border: 1px solid var(--border-mist);
+  border-radius: var(--radius-md);
+}
+.ds-tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.ds-tab--active {
+  background: var(--ink-600);
+  color: var(--text-primary);
+}
+/* The DS tab is 32px tall; on touch layouts it has to clear 44px. Expanding the
+   control itself rather than overlaying a hit area, so it can't steal taps from
+   the hero above or the task card below. */
+@media (max-width: 899px) {
+  .ds-tab {
+    min-height: 44px;
+  }
+}
+
+/* ---------- Toast ---------- */
+.ds-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-mist);
+  background: var(--bg-surface-raised);
+  box-shadow: var(--shadow-md), var(--shadow-mist);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+.ds-toast--success {
+  border-color: rgba(74, 191, 138, 0.5);
+}
+.ds-toast--danger {
+  border-color: rgba(224, 82, 107, 0.5);
+}
+.ds-toast__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--semantic-success);
+}
+
+/* ---------- Switch ---------- */
+.ds-switch {
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1px solid var(--border-mist);
+  border-radius: var(--radius-pill);
+  background: var(--ink-600);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.ds-switch[aria-checked="true"] {
+  background: var(--brand-primary);
+  border-color: var(--indigo-400);
+}
+.ds-switch__knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--mist-100);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.ds-switch[aria-checked="true"] .ds-switch__knob {
+  transform: translateX(16px);
+}
+
+/* ---------- Quick-insert chip ---------- */
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-mist);
+  background: var(--ink-700);
+  color: var(--mist-400);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ds-chip:active {
+  border-color: var(--ice-400);
+  color: var(--ice-500);
+}

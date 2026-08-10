@@ -1,0 +1,67 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-canvas);
+  background-image: var(--vignette);
+  background-repeat: no-repeat;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  /* The capture dock is fixed to the bottom; never let the page rubber-band. */
+  overscroll-behavior: none;
+  /* Inside the native shell this has to read as an app, not a web page. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* …but text the user is actually editing must stay selectable. */
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Deep Mist scrollbars — the surface should not be broken by a bright track. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-500) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--ink-500);
+  border-radius: var(--radius-pill);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The brand's sparse cross-mark motif — max 2 per screen. */
+.motif-cross {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  pointer-events: none;
+  user-select: none;
+}

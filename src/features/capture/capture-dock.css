@@ -1,0 +1,40 @@
+.capture-dock {
+  border-top: 1px solid var(--border-mist);
+  background: var(--ink-950);
+  padding: 10px 14px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.capture-dock__parsed {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.capture-dock__parsed-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+}
+
+.capture-dock__chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  /* The 44px hit areas overlap the scroll edges; hide the overflow cleanly. */
+  scrollbar-width: none;
+}
+.capture-dock__chips::-webkit-scrollbar {
+  display: none;
+}
+
+.capture-dock__row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}

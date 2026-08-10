@@ -1,0 +1,117 @@
+.mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-canvas);
+  background-image: var(--vignette);
+  background-repeat: no-repeat;
+  font-family: var(--font-body);
+}
+
+/* ---------- status bar inset ----------
+   iOS draws the real status bar over the WebView. This reserves the same 44px
+   the handoff allotted, growing to the notch/Dynamic Island inset on device. */
+.mobile__statusbar {
+  height: max(44px, env(safe-area-inset-top));
+  flex-shrink: 0;
+}
+
+/* ---------- scrollable content ---------- */
+.mobile__content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+.mobile__hero {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 44px;
+  line-height: 0.9;
+  letter-spacing: var(--tracking-hero);
+  color: var(--gold-500);
+}
+
+.mobile__subline {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+
+.mobile__sync {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+.mobile__sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mobile__sync-label {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.mobile__empty {
+  padding: var(--space-6) 0;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+}
+
+/* ---------- toast ---------- */
+.mobile__toast {
+  padding: 0 14px var(--space-2);
+  flex-shrink: 0;
+}
+.mobile__undo {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--ice-500);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: var(--space-2);
+}
+
+/* ---------- tab bar ---------- */
+.mobile__tabbar {
+  display: flex;
+  border-top: 1px solid var(--border-mist);
+  background: var(--ink-950);
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+.ds-tabbar-item {
+  flex: 1;
+  min-height: 48px;
+  padding-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+}

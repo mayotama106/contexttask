@@ -1,0 +1,34 @@
+.task-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-mist);
+  min-height: 44px;
+}
+.task-line:last-child {
+  border-bottom: none;
+}
+.task-line--compact {
+  padding: 10px 0;
+  min-height: 0;
+}
+.task-line__body {
+  flex: 1;
+  min-width: 0;
+}
+.task-line__title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+}
+.task-line__meta {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+}
+.task-line--compact .task-line__meta {
+  gap: var(--space-2);
+}

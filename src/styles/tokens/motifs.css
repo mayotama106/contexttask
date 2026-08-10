@@ -1,0 +1,11 @@
+:root{
+--ice-500:#a8d4ff;--ice-400:#7fb8ff;--ice-300:#d6ebff;
+--glow-ice:0 0 12px rgba(168,212,255,.55);
+--glow-brand:0 0 20px rgba(102,100,196,.45);
+--glow-accent:0 0 18px rgba(245,197,24,.35);
+--texture-grid:repeating-linear-gradient(90deg,rgba(245,197,24,.14) 0 1px,transparent 1px 10px);/* @kind other */
+--texture-scan:repeating-linear-gradient(0deg,rgba(168,212,255,.10) 0 1px,transparent 1px 6px);/* @kind other */
+--text-hero:96px;--text-hero-lg:132px;
+--tracking-hero:-0.045em;
+--vignette:radial-gradient(120% 90% at 50% 0%,rgba(48,47,120,.30) 0%,transparent 62%);/* @kind other */
+}

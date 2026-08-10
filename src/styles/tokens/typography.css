@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+:root{
+--font-display:"Zen Kaku Gothic New","Inter",-apple-system,sans-serif;
+--font-body:"Inter","Zen Kaku Gothic New",-apple-system,sans-serif;
+--font-mono:"JetBrains Mono","SFMono-Regular",Menlo,monospace;
+--text-xs:12px;--text-sm:13px;--text-base:15px;--text-md:17px;--text-lg:20px;--text-xl:24px;--text-2xl:32px;--text-3xl:44px;--text-4xl:60px;
+--leading-tight:1.15;--leading-snug:1.35;--leading-normal:1.55;
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+--tracking-tight:-0.02em;--tracking-normal:0;--tracking-wide:0.04em;
+}

@@ -1,0 +1,19 @@
+node_modules/
+dist/
+dist-ssr/
+.DS_Store
+*.log
+
+# Capacitor build output / synced web assets
+ios/App/App/public/
+ios/App/build/
+ios/App/build-device/
+ios/App/Pods/
+ios/DerivedData/
+
+# Orphaned notes from the removed Obsidian sync experiment.
+# Leading slash matters: a bare `tasks/` also swallows src/features/tasks/.
+/tasks/
+
+# Design handoff: kept locally, not published with the app
+/docs/
