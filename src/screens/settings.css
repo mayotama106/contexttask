@@ -76,3 +76,15 @@
   font-weight: var(--weight-semibold);
   cursor: pointer;
 }
+
+.settings__key {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ice-500);
+  word-break: break-all;
+}
+.settings__note strong {
+  color: var(--gold-400);
+  font-weight: var(--weight-semibold);
+}

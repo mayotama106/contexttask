@@ -4,6 +4,7 @@ import { parseCapture } from "../../lib/parse";
 import { resolveDue } from "../../lib/due";
 import type { AiJob, Task } from "../../lib/types";
 import { HeuristicTagger, isAbort, type Tagger } from "../capture/aiTagger";
+import { PermanentTaggerError } from "../capture/claudeTagger";
 import { logActivity } from "../activity/store";
 import { mergeTasks, type MergeResult } from "../../lib/backup";
 
@@ -296,6 +297,16 @@ async function runJob(
       }
       return;
     }
+
+    // A rejected key or a refused request will fail identically every time;
+    // retrying would burn the whole budget on each captured task.
+    if (err instanceof PermanentTaggerError) {
+      get().applyInference(task.id, { aiStatus: "error" });
+      logActivity(err.message, "danger");
+      writeThrough(() => db.aiJobs.delete(job.id));
+      return;
+    }
+
     const attempts = job.attempts + 1;
     if (attempts >= MAX_ATTEMPTS) {
       get().applyInference(task.id, { aiStatus: "error" });

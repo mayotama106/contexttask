@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
-import { Download, Upload } from "lucide-react";
-import { Button, Card, Switch } from "../components/ds";
+import { Download, Sparkles, Upload } from "lucide-react";
+import { Badge, Button, Card, Field, Input, Switch } from "../components/ds";
 import { useTaskStore } from "../features/tasks/store";
 import { BackupError, downloadBackup, parseBackup } from "../lib/backup";
+import { looksLikeApiKey } from "../lib/apiKey";
+import { estimateCostUsd, useTaggerStore } from "../features/capture/taggerSelection";
 import "./settings.css";
 
 type Notice = { tone: "ok" | "bad"; text: string } | null;
@@ -14,6 +16,15 @@ export function SettingsScreen() {
   const importTasks = useTaskStore((s) => s.importTasks);
   const clearAll = useTaskStore((s) => s.clearAll);
   const storageError = useTaskStore((s) => s.storageError);
+
+  const maskedKey = useTaggerStore((s) => s.maskedKey);
+  const usingClaude = useTaggerStore((s) => s.usingClaude);
+  const calls = useTaggerStore((s) => s.calls);
+  const inputTokens = useTaggerStore((s) => s.inputTokens);
+  const outputTokens = useTaggerStore((s) => s.outputTokens);
+  const setKey = useTaggerStore((s) => s.setKey);
+  const removeKey = useTaggerStore((s) => s.removeKey);
+  const [keyDraft, setKeyDraft] = useState("");
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState<Notice>(null);
@@ -86,6 +97,66 @@ export function SettingsScreen() {
         </p>
         {notice && (
           <p className={notice.tone === "ok" ? "settings__ok" : "settings__bad"}>{notice.text}</p>
+        )}
+      </Section>
+
+      <Section
+        title="AI タグ付け"
+        note="自分の Anthropic API キーを入れると、タグと見積もりを Claude Haiku 4.5 が推定します。キーはこの端末の中だけに保存され、送信先は Anthropic だけです。未設定でもローカルの簡易推定で動きます。"
+        action={
+          usingClaude ? (
+            <Badge tone="ice">Claude</Badge>
+          ) : (
+            <Badge tone="neutral">ローカル推定</Badge>
+          )
+        }
+      >
+        {maskedKey ? (
+          <>
+            <p className="settings__key">{maskedKey}</p>
+            {calls > 0 && (
+              <p className="settings__note">
+                このセッション: {calls} 回 / 入力 {inputTokens.toLocaleString()} · 出力{" "}
+                {outputTokens.toLocaleString()} トークン ≈ $
+                {estimateCostUsd(inputTokens, outputTokens).toFixed(4)}
+              </p>
+            )}
+            <Button variant="ghost" onClick={() => void removeKey()}>
+              キーを削除
+            </Button>
+          </>
+        ) : (
+          <>
+            <Field label="Anthropic API Key">
+              <Input
+                value={keyDraft}
+                onChange={(e) => setKeyDraft(e.target.value)}
+                type="password"
+                placeholder="sk-ant-..."
+                aria-label="Anthropic API キー"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                style={{ height: 46 }}
+              />
+            </Field>
+            <Button
+              variant="accent"
+              icon={<Sparkles size={16} />}
+              disabled={!looksLikeApiKey(keyDraft)}
+              onClick={() => {
+                void setKey(keyDraft);
+                setKeyDraft("");
+                setNotice({ tone: "ok", text: "キーを保存しました" });
+              }}
+            >
+              有効にする
+            </Button>
+            <p className="settings__note">
+              Console で<strong>使用上限</strong>を設定することを勧めます。キーは暗号化されず、
+              このページのスクリプトから読める場所に保存されるためです。
+            </p>
+          </>
         )}
       </Section>
 
