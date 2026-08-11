@@ -32,17 +32,34 @@ const DEBOUNCE_MS = 1200;
  * Starts the connector: coalesces bursts of edits, never blocks a capture, and
  * reflects offline/error states rather than retrying silently forever.
  */
+/**
+ * The live adapter, swapped at runtime when the user connects or disconnects a
+ * vault in settings — the connector itself keeps running either way.
+ */
+let activeAdapter: VaultAdapter | null = null;
+let onAdapterChange: ((adapter: VaultAdapter | null) => void) | null = null;
+
+export function setVaultAdapter(adapter: VaultAdapter | null): void {
+  activeAdapter = adapter;
+  onAdapterChange?.(adapter);
+}
+
 export function startObsidianSync(adapter?: VaultAdapter): () => void {
   const store = useSyncStore.getState();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let queued: Task[] | null = null;
   let running = false;
 
-  // Nothing to mirror to. Tasks still persist locally; the status row says so.
-  if (!adapter) {
-    store.set({ state: "disconnected", pending: 0 });
-    return () => {};
-  }
+  if (adapter) activeAdapter = adapter;
+  onAdapterChange = (next) => {
+    if (!next) {
+      store.set({ state: "disconnected", pending: 0, lastSyncedAt: null });
+      return;
+    }
+    // Push everything the moment a vault is connected.
+    store.set({ state: "syncing" });
+    schedule();
+  };
 
   void getMeta<number>("lastSyncedAt").then((ts) => {
     if (ts) store.set({ lastSyncedAt: ts });
@@ -50,6 +67,10 @@ export function startObsidianSync(adapter?: VaultAdapter): () => void {
 
   const flush = async () => {
     if (running || !queued) return;
+    if (!activeAdapter) {
+      store.set({ state: "disconnected", pending: 0 });
+      return;
+    }
     if (!navigator.onLine) {
       store.set({ state: "offline" });
       return;
@@ -59,14 +80,17 @@ export function startObsidianSync(adapter?: VaultAdapter): () => void {
     running = true;
     store.set({ state: "syncing" });
     try {
-      await adapter.push(batch);
+      await activeAdapter.push(batch);
       const now = Date.now();
       await setMeta("lastSyncedAt", now);
       store.set({ state: "synced", lastSyncedAt: now, pending: 0, error: undefined });
       logActivity(`Vault へ ${batch.length} 件を同期`, "success");
     } catch (err) {
       queued = batch;
-      logActivity("Vault 同期を保留 — 接続待ち", "danger");
+      logActivity(
+        err instanceof Error ? `Vault 同期に失敗: ${err.message}` : "Vault 同期に失敗",
+        "danger",
+      );
       store.set({
         state: navigator.onLine ? "error" : "offline",
         error: err instanceof Error ? err.message : String(err),
@@ -84,6 +108,10 @@ export function startObsidianSync(adapter?: VaultAdapter): () => void {
 
   const unsubscribe = onTasksChanged((tasks) => {
     queued = tasks;
+    if (!activeAdapter) {
+      store.set({ state: "disconnected" });
+      return;
+    }
     store.set({ pending: useSyncStore.getState().pending + 1 });
     schedule();
   });
@@ -98,6 +126,7 @@ export function startObsidianSync(adapter?: VaultAdapter): () => void {
 
   return () => {
     clearTimeout(timer);
+    onAdapterChange = null;
     unsubscribe();
     window.removeEventListener("online", online);
     window.removeEventListener("offline", offline);

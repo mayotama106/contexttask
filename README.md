@@ -154,20 +154,32 @@ src/
 - 未解決タグは ice グロー (`--ice-400` + `--glow-ice`) で表示。スピナーは一切使わない — ice はハンドオフ上「focus / active / AI 処理中」専用の色
 - UNDO / 一時停止時は AbortController で中断し、ジョブはキューに残す
 
-### Obsidian 同期 — 現在は未接続
+### Obsidian 同期 — GitHub 経由
 
-**接続先は外してある。** スマホ優先の判断による。PWA / WebView からは iOS・Android どちらでもローカルの vault フォルダに書けず（File System Access API はデスクトップ Chrome 系専用）、任意フォルダへの永続アクセス権を取るにはネイティブプラグインの自作が必要になるため。
+**vault を GitHub リポジトリに置き、そこへ Markdown を書き出す。** ローカルのファイルシステムに触らないので、iPhone から動く唯一の経路。
 
-UI とシームは仕様どおり残してある:
+ローカル vault への直接書き込みが選べない理由:
+
+- PWA / WebView からは iOS・Android どちらもローカルフォルダに書けない（File System Access API はデスクトップ Chrome 系専用）
+- Obsidian の Local REST API プラグインは `isDesktopOnly: true`。iPhone の Obsidian では起動せず、叩くべきエンドポイントが存在しない
+- 仮に動いても、HTTPS ページから `http://127.0.0.1` は mixed content で遮断され、`https://127.0.0.1` は自己署名証明書を iOS Safari で信頼できない
+
+実装は [githubVault.ts](src/features/sync/githubVault.ts):
+
+- **Git Data API を使い、1 回の同期を 1 コミットにまとめる。** Contents API だとファイル数だけコミットが増える
+- 削除は `.contexttask-manifest.json`（自分が書いたノートの一覧）に載っているものだけ。同じフォルダの手書きノートは対象外
+- tree の sha が変わらなければ空コミットを作らずに終了する
+- fine-grained PAT の `Contents: Read and write` だけで足りる。接続時にリポジトリ情報を取得し、**公開リポジトリなら警告を出す**（タスク内容が公開されるため）
+
+Mac 側は obsidian-git などでこのリポジトリを取り込む。
+
+UI とシームは仕様どおり:
 
 - `useSyncStore` が `SyncStatus { state, lastSyncedAt, pending, error }` を公開。state は `synced | syncing | error | offline | disconnected`
 - アダプタ未指定のとき `disconnected` に落ち着き、ヘッダは「Vault 未接続 · ローカルに保存済み」+ 中立グレーのドットを表示する。同期していないのに緑を出さない
 - ドット色: 緑=同期済み / ice=同期中 / 赤=エラー / 金=オフライン / グレー=未接続
 
-繋ぎ直すときは `VaultAdapter`（`push(tasks)` 1メソッド）を実装して `startObsidianSync(adapter)` に渡すだけでよい。デバウンス 1.2s・オフライン時のキュー保持・`online` での自動再開といったコネクタ側の機構はすべて生きている。候補:
-
-- Capacitor のネイティブプラグイン（iOS: ドキュメントピッカー + security-scoped bookmark）
-- Git リポジトリ経由（ファイルシステム権限が不要。vault 側は obsidian-git で取り込む）
+別の同期先を足すときは `VaultAdapter`（`push(tasks)` 1メソッド）を実装して `setVaultAdapter()` に渡す。デバウンス 1.2s・オフライン時のキュー保持・`online` での自動再開といったコネクタ側の機構はそのまま使える。
 
 ## タスクの編集・削除・バックアップ
 
@@ -237,6 +249,19 @@ Dexie は v2 で `dueAt` インデックスを追加し、既存行は `due` 文
 - BYOK: キーの保存とマスク表示、削除でローカル推定に戻ること、形式チェックによる送信前バリデーション
 - **ブラウザから api.anthropic.com へ到達できること**（無効キーで 401 が返る = CORS 通過）。専用ヘッダ無しでは `Failed to fetch` になることも確認
 - 無効キーでの恒久エラー: 保存は 4.5ms で完了し、リトライを消費せず即 `aiStatus: "error"`、キューに残骸なし
+
+### GitHub 同期 — Git Data API の手順を実リポジトリで検証
+
+トークンをフォームに入力できないため、アダプタと同一のリクエスト列を `gh api` で再現して確認した:
+
+| 検証 | 結果 |
+|---|---|
+| ノート2件 + マニフェスト | **3 ファイルが 1 コミット**に入る。日本語ファイル名も通る |
+| 更新 + 削除 | マニフェスト記載のノートのみ `sha: null` で削除、他は更新 |
+| 手書きノートの保護 | 同じフォルダに置いた手書きノートは削除されない |
+| 変更なしの再送 | tree sha が一致 → 空コミットを作らず終了 |
+
+アプリ側は不正トークンでの接続拒否とエラー表示まで確認。**実トークンでの通しは未検証**（トークンの入力は利用者本人が行う必要があるため）。
 - 期限の解決 29 ケース（相対語・曜日・M/D・存在しない日・解釈不能）が全て期待どおり
 - 構文解析 17 ケース: 既存の `#tag` `~est` `!due` が無変更で通り、`!!` / `!!明日` / 三連 `!!!` / 先頭マーカーも正しい。`!金曜` 単体では重要にならない
 - 今日画面のグループ分けと超過の赤表示、タグ画面の絞り込み、予定画面の日付グループ

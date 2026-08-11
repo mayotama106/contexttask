@@ -5,6 +5,7 @@ import { useTaskStore } from "../features/tasks/store";
 import { BackupError, downloadBackup, parseBackup } from "../lib/backup";
 import { looksLikeApiKey } from "../lib/apiKey";
 import { estimateCostUsd, useTaggerStore } from "../features/capture/taggerSelection";
+import { VaultSection } from "./VaultSection";
 import "./settings.css";
 
 type Notice = { tone: "ok" | "bad"; text: string } | null;
@@ -159,6 +160,8 @@ export function SettingsScreen() {
           </>
         )}
       </Section>
+
+      <VaultSection />
 
       <Section
         title="バックグラウンド処理"

@@ -88,3 +88,9 @@
   color: var(--gold-400);
   font-weight: var(--weight-semibold);
 }
+
+/* Owner/repo and branch/path sit side by side where there's room. */
+.settings__row .ds-field {
+  flex: 1;
+  min-width: 140px;
+}

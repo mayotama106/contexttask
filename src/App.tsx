@@ -6,6 +6,7 @@ import { startObsidianSync } from "./features/sync/obsidianSync";
 import { useMediaQuery } from "./lib/useClock";
 import { initNativeShell, isNative } from "./lib/native";
 import { useTaggerStore } from "./features/capture/taggerSelection";
+import { useVaultSettings } from "./features/sync/vaultSettings";
 
 export function App() {
   const hydrate = useTaskStore((s) => s.hydrate);
@@ -17,8 +18,11 @@ export function App() {
   useEffect(() => {
     void initNativeShell();
     // Pick the tagger before hydrate resumes any queued jobs.
-    void useTaggerStore.getState().load().then(hydrate);
-    // No vault adapter is wired — see obsidianSync.ts.
+    // Restore the tagger and the vault connection before hydrate emits.
+    void Promise.all([
+      useTaggerStore.getState().load(),
+      useVaultSettings.getState().load(),
+    ]).then(hydrate);
     return startObsidianSync();
   }, [hydrate]);
 
